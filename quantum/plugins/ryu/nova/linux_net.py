@@ -15,6 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
+
 from ryu.app.client import OFPClient
 
 from nova import flags
@@ -63,6 +65,10 @@ class LinuxOVSRyuInterfaceDriver(linux_net.LinuxOVSInterfaceDriver):
                     '--in-interface gw-+ --out-interface gw-+ -j DROP')
             linux_net.iptables_manager.apply()
 
+    def _interface_exists(self, network, datapath_id, port_no):
+        ports = json.loads(self.ryu_client.get_ports(network['uuid']))
+        return [datapath_id, port_no] in ports
+
     def plug(self, network, mac_address, gateway=True):
         LOG.debug("network %s mac_adress %s gateway %s",
                   network, mac_address, gateway)
@@ -70,5 +76,10 @@ class LinuxOVSRyuInterfaceDriver(linux_net.LinuxOVSInterfaceDriver):
             network, mac_address, gateway)
 
         port_no = _get_port_no(self.get_dev(network))
-        self.ryu_client.create_port(network['uuid'], self.datapath_id, port_no)
+        if self._interface_exists(network, int(self.datapath_id, 16), port_no):
+            self.ryu_client.update_port(
+                    network['uuid'], self.datapath_id, port_no)
+        else:
+            self.ryu_client.create_port(
+                    network['uuid'], self.datapath_id, port_no)
         return ret

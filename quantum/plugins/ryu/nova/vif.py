@@ -16,6 +16,7 @@
 #    under the License.
 
 import httplib
+import json
 
 from ryu.app.client import OFPClient
 
@@ -60,14 +61,25 @@ class LibvirtOpenVswitchOFPRyuDriver(libvirt_vif.LibvirtOpenVswitchDriver):
         dev = self.get_dev_name(iface_id)
         return _get_port_no(dev)
 
-    def plug(self, instance, network, mapping):
+    def _interface_exists(self, network, datapath_id, port_no):
+        ports = json.loads(self.ryu_client.get_ports(network['id']))
+        return [datapath_id, port_no] in ports
+
+    def plug(self, instance, vif):
         result = super(LibvirtOpenVswitchOFPRyuDriver, self).plug(
-            instance, network, mapping)
+            instance, vif)
+        network, mapping = vif
         port_no = self._get_port_no(mapping)
-        self.ryu_client.create_port(network['id'], self.datapath_id, port_no)
+        if self._interface_exists(network, int(self.datapath_id, 16), port_no):
+            self.ryu_client.update_port(
+                    network['id'], self.datapath_id, port_no)
+        else:
+            self.ryu_client.create_port(
+                    network['id'], self.datapath_id, port_no)
         return result
 
-    def unplug(self, instance, network, mapping):
+    def unplug(self, instance, vif):
+        network, mapping = vif
         port_no = self._get_port_no(mapping)
         try:
             self.ryu_client.delete_port(network['id'],
