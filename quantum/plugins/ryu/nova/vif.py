@@ -16,7 +16,6 @@
 #    under the License.
 
 import httplib
-import json
 
 from ryu.app.client import OFPClient
 
@@ -26,6 +25,7 @@ from nova.openstack.common import cfg
 from nova import utils
 from nova.virt.libvirt import vif as libvirt_vif
 
+from quantum.openstack.common import jsonutils
 
 LOG = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class LibvirtOpenVswitchOFPRyuDriver(libvirt_vif.LibvirtOpenVswitchDriver):
         return _get_port_no(dev)
 
     def _interface_exists(self, network, datapath_id, port_no):
-        ports = json.loads(self.ryu_client.get_ports(network['id']))
+        ports = jsonutils.loads(self.ryu_client.get_ports(network['id']))
         return [datapath_id, port_no] in ports
 
     def plug(self, instance, vif):

@@ -15,8 +15,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from ryu.app.client import OFPClient
 
 from nova import flags
@@ -25,6 +23,7 @@ from nova.network import linux_net
 from nova.openstack.common import cfg
 from nova import utils
 
+from quantum.openstack.common import jsonutils
 
 LOG = logging.getLogger(__name__)
 
@@ -66,7 +65,7 @@ class LinuxOVSRyuInterfaceDriver(linux_net.LinuxOVSInterfaceDriver):
             linux_net.iptables_manager.apply()
 
     def _interface_exists(self, network, datapath_id, port_no):
-        ports = json.loads(self.ryu_client.get_ports(network['uuid']))
+        ports = jsonutils.loads(self.ryu_client.get_ports(network['uuid']))
         return [datapath_id, port_no] in ports
 
     def plug(self, network, mac_address, gateway=True):
