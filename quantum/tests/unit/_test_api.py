@@ -21,17 +21,28 @@ import logging
 import unittest2 as unittest
 
 import mock
+import os
 
 from quantum.api.api_common import APIFaultWrapper
 from quantum.api.networks import Controller
+from quantum.common import config
 from quantum.common.test_lib import test_config
 from quantum.db import api as db
+from quantum.openstack.common import cfg
 from quantum.openstack.common import importutils
 import quantum.tests.unit.testlib_api as testlib
 from quantum.wsgi import XMLDeserializer, JSONDeserializer
 
 
 LOG = logging.getLogger('quantum.tests.test_api')
+
+
+ROOTDIR = os.path.dirname(os.path.dirname(__file__))
+ETCDIR = os.path.join(ROOTDIR, 'etc')
+
+
+def etcdir(*p):
+    return os.path.join(ETCDIR, *p)
 
 
 NETS = "networks"
@@ -105,10 +116,13 @@ class AbstractAPITest(unittest.TestCase):
         self.assertEqual(put_attachment_res.status_int, expected_res_status)
 
     def setUp(self, api_router_klass, xml_metadata_dict):
-        options = {}
-        options['plugin_provider'] = test_config['plugin_name']
+        # Create the default configurations
+        args = ['--config-file', etcdir('quantum.conf.test')]
+        config.parse(args=args)
+        # Update the plugin
+        cfg.CONF.set_override('core_plugin', test_config['plugin_name'])
         api_router_cls = importutils.import_class(api_router_klass)
-        self.api = api_router_cls(options)
+        self.api = api_router_cls()
         self.tenant_id = "test_tenant"
         self.network_name = "test_network"
 
@@ -136,6 +150,7 @@ class AbstractAPITest(unittest.TestCase):
         """Clear the test environment"""
         # Remove database contents
         db.clear_db()
+        cfg.CONF.reset()
 
 
 class BaseAPIOperationsTest(AbstractAPITest):
@@ -219,8 +234,9 @@ class BaseAPIOperationsTest(AbstractAPITest):
         # Create a network and a port
         network_id = self._create_network(fmt)
         port_id = self._create_port(network_id, "ACTIVE", fmt)
-        show_network_req = testlib.show_network_detail_request(
-                                    self.tenant_id, network_id, fmt)
+        show_network_req = testlib.show_network_detail_request(self.tenant_id,
+                                                               network_id,
+                                                               fmt)
         show_network_res = show_network_req.get_response(self.api)
         self.assertEqual(show_network_res.status_int, 200)
         network_data = self._deserialize_net_response(content_type,
@@ -371,7 +387,7 @@ class BaseAPIOperationsTest(AbstractAPITest):
 
     def _test_list_ports_networknotfound(self, fmt):
         LOG.debug("_test_list_ports_networknotfound"
-                    " - fmt:%s - START", fmt)
+                  " - fmt:%s - START", fmt)
         list_port_req = testlib.port_list_request(self.tenant_id,
                                                   "A_BAD_ID", fmt)
         list_port_res = list_port_req.get_response(self.api)
@@ -414,7 +430,7 @@ class BaseAPIOperationsTest(AbstractAPITest):
         port_data = self._deserialize_port_response(content_type,
                                                     show_port_res)
         self.assert_port(id=port_id, state=port_state,
-                        port_data=port_data['port'])
+                         port_data=port_data['port'])
         LOG.debug("_test_show_port - fmt:%s - END", fmt)
 
     def _test_show_port_detail(self, fmt):

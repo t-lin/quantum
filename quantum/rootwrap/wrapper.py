@@ -23,7 +23,7 @@ import sys
 FILTERS_MODULES = ['quantum.rootwrap.linuxbridge-agent',
                    'quantum.rootwrap.openvswitch-agent',
                    'quantum.rootwrap.ryu-agent',
-                  ]
+                   'quantum.rootwrap.iptables-firewall-agent']
 
 
 def load_filters():

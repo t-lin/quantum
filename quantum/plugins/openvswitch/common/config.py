@@ -27,6 +27,8 @@ ovs_opts = [
     cfg.StrOpt('integration_bridge', default='br-int'),
     cfg.StrOpt('tunnel_bridge', default='br-tun'),
     cfg.StrOpt('local_ip', default='10.0.0.3'),
+    cfg.IntOpt('vlan_min', default=1),
+    cfg.IntOpt('vlan_max', default=4094),
 ]
 
 agent_opts = [
@@ -36,8 +38,8 @@ agent_opts = [
 
 
 def parse(config_file):
-    conf = cfg.ConfigOpts(default_config_files=[config_file])
-    conf(args=[])
+    conf = cfg.ConfigOpts()
+    conf(args=[], default_config_files=[config_file])
     conf.register_opts(database_opts, "DATABASE")
     conf.register_opts(ovs_opts, "OVS")
     conf.register_opts(agent_opts, "AGENT")

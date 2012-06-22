@@ -36,6 +36,7 @@ PY_VERSION = "python%s.%s" % (sys.version_info[0], sys.version_info[1])
 
 VENV_EXISTS = bool(os.path.exists(VENV))
 
+
 def die(message, *args):
     print >> sys.stderr, message % args
     sys.exit(1)
@@ -60,15 +61,15 @@ def run_command(cmd, redirect_output=True, check_exit_code=True):
 HAS_EASY_INSTALL = bool(run_command(['which', 'easy_install'],
                                     check_exit_code=False).strip())
 HAS_VIRTUALENV = bool(run_command(['which', 'virtualenv'],
-                                    check_exit_code=False).strip())
+                                  check_exit_code=False).strip())
 
 
 def check_dependencies():
     """Make sure virtualenv is in the path."""
 
     if not HAS_VIRTUALENV:
-        raise Exception('Virtualenv not found. ' + \
-                         'Try installing python-virtualenv')
+        raise Exception('Virtualenv not found. '
+                        'Try installing python-virtualenv')
     print 'done.'
 
 

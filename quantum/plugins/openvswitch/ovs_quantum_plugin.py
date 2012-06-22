@@ -19,23 +19,21 @@
 # @author: Dave Lapsley, Nicira Networks, Inc.
 
 import logging
-from optparse import OptionParser
 import os
-import sys
 
 from quantum.api.api_common import OperationalStatus
 from quantum.common import exceptions as q_exc
-from quantum.common.config import find_config_file
+from quantum.common.utils import find_config_file
 import quantum.db.api as db
-from quantum.plugins.openvswitch import ovs_db
 from quantum.plugins.openvswitch.common import config
+from quantum.plugins.openvswitch import ovs_db
 from quantum.quantum_plugin_base import QuantumPluginBase
 
 LOG = logging.getLogger("ovs_quantum_plugin")
 
 
 CONF_FILE = find_config_file({"plugin": "openvswitch"},
-                             None, "ovs_quantum_plugin.ini")
+                             "ovs_quantum_plugin.ini")
 
 
 # Exception thrown if no more VLANs are available
@@ -47,13 +45,13 @@ class VlanMap(object):
     vlans = {}
     net_ids = {}
     free_vlans = set()
-    VLAN_MIN = 1
-    VLAN_MAX = 4094
 
-    def __init__(self):
+    def __init__(self, vlan_min=1, vlan_max=4094):
+        self.vlan_min = vlan_min
+        self.vlan_max = vlan_max
         self.vlans.clear()
         self.net_ids.clear()
-        self.free_vlans = set(xrange(self.VLAN_MIN, self.VLAN_MAX + 1))
+        self.free_vlans = set(xrange(self.vlan_min, self.vlan_max + 1))
 
     def already_used(self, vlan_id, network_id):
         self.free_vlans.remove(vlan_id)
@@ -104,7 +102,16 @@ class OVSQuantumPlugin(QuantumPluginBase):
         options.update({"reconnect_interval": reconnect_interval})
         db.configure_db(options)
 
-        self.vmap = VlanMap()
+        vlan_min = conf.OVS.vlan_min
+        vlan_max = conf.OVS.vlan_max
+
+        if vlan_min > vlan_max:
+            LOG.warn("Using default VLAN values! vlan_min = %s is larger"
+                     " than vlan_max = %s!" % (vlan_min, vlan_max))
+            vlan_min = 1
+            vlan_max = 4094
+
+        self.vmap = VlanMap(vlan_min, vlan_max)
         # Populate the map with anything that is already present in the
         # database
         vlans = ovs_db.get_vlans()
@@ -127,7 +134,7 @@ class OVSQuantumPlugin(QuantumPluginBase):
             'net-id': net_id,
             'net-name': net_name,
             'net-op-status': op_status,
-            }
+        }
         if ports:
             res['net-ports'] = ports
         return res
@@ -178,7 +185,7 @@ class OVSQuantumPlugin(QuantumPluginBase):
             'port-op-status': op_status,
             'net-id': port.network_id,
             'attachment': port.interface_id,
-            }
+        }
 
     def get_all_ports(self, tenant_id, net_id, **kwargs):
         ids = []

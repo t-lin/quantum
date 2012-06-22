@@ -24,7 +24,6 @@ from quantum.api import api_common as common
 from quantum.api.views import ports as port_view
 from quantum.extensions import extensions
 from quantum.manager import QuantumManager
-from quantum.plugins.cisco.common import cisco_exceptions as exception
 from quantum.plugins.cisco.common import cisco_faults as faults
 from quantum import wsgi
 
@@ -80,7 +79,7 @@ class MultiportController(common.QuantumController, wsgi.Controller):
         {'param-name': 'net_id_list', 'required': True},
         {'param-name': 'status', 'required': True},
         {'param-name': 'ports_desc', 'required': True},
-        ]
+    ]
 
     _serialization_metadata = {
         "application/xml": {

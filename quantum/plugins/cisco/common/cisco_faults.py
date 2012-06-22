@@ -25,16 +25,17 @@ class Fault(webob.exc.HTTPException):
     """Error codes for API faults"""
 
     _fault_names = {
-            400: "malformedRequest",
-            401: "unauthorized",
-            421: "PortprofileInUse",
-            450: "PortprofileNotFound",
-            451: "CredentialNotFound",
-            452: "QoSNotFound",
-            453: "NovatenantNotFound",
-            454: "MultiportNotFound",
-            470: "serviceUnavailable",
-            471: "pluginFault"}
+        400: "malformedRequest",
+        401: "unauthorized",
+        421: "PortprofileInUse",
+        450: "PortprofileNotFound",
+        451: "CredentialNotFound",
+        452: "QoSNotFound",
+        453: "NovatenantNotFound",
+        454: "MultiportNotFound",
+        470: "serviceUnavailable",
+        471: "pluginFault"
+    }
 
     def __init__(self, exception):
         """Create a Fault for the given webob.exc.exception."""
@@ -53,8 +54,8 @@ class Fault(webob.exc.HTTPException):
                 'message': self.wrapped_exc.explanation}}
         # 'code' is an attribute on the fault tag itself
         content_type = req.best_match_content_type()
-        self.wrapped_exc.body = wsgi.Serializer().\
-        serialize(fault_data, content_type)
+        self.wrapped_exc.body = wsgi.Serializer().serialize(
+            fault_data, content_type)
         self.wrapped_exc.content_type = content_type
         return self.wrapped_exc
 

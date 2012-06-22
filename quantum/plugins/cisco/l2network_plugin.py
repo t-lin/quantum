@@ -18,18 +18,17 @@
 
 import inspect
 import logging
-import re
 
 from quantum.common import exceptions as exc
 from quantum.openstack.common import importutils
-from quantum.quantum_plugin_base import QuantumPluginBase
-from quantum.plugins.cisco import l2network_plugin_configuration as conf
 from quantum.plugins.cisco.common import cisco_constants as const
 from quantum.plugins.cisco.common import cisco_credentials as cred
 from quantum.plugins.cisco.common import cisco_exceptions as cexc
 from quantum.plugins.cisco.common import cisco_utils as cutil
 from quantum.plugins.cisco.db import api as db
 from quantum.plugins.cisco.db import l2network_db as cdb
+from quantum.plugins.cisco import l2network_plugin_configuration as conf
+from quantum.quantum_plugin_base import QuantumPluginBase
 
 
 LOG = logging.getLogger(__name__)
@@ -392,7 +391,7 @@ class L2Network(QuantumPluginBase):
             portprofile = cdb.get_portprofile(tenant_id, portprofile_id)
         except Exception:
             raise cexc.PortProfileNotFound(tenant_id=tenant_id,
-                                      portprofile_id=portprofile_id)
+                                           portprofile_id=portprofile_id)
 
         cdb.remove_pp_binding(tenant_id, port_id, portprofile_id)
 

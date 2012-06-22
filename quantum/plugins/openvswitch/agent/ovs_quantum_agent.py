@@ -21,11 +21,9 @@
 
 import logging
 from optparse import OptionParser
-import signal
 import sys
 import time
 
-import sqlalchemy
 from sqlalchemy.ext import sqlsoup
 
 from quantum.agent.linux import ovs_lib
@@ -135,7 +133,7 @@ class OVSQuantumAgent(object):
             all_bindings = {}
             try:
                 ports = db.ports.all()
-            except Exception as e:
+            except Exception, e:
                 LOG.info("Unable to get port bindings! Exception: %s" % e)
                 db_connected = False
                 continue
@@ -146,7 +144,7 @@ class OVSQuantumAgent(object):
             vlan_bindings = {}
             try:
                 vlan_binds = db.vlan_bindings.all()
-            except Exception as e:
+            except Exception, e:
                 LOG.info("Unable to get vlan bindings! Exception: %s" % e)
                 db_connected = False
                 continue
@@ -176,7 +174,7 @@ class OVSQuantumAgent(object):
                 if old_b != new_b:
                     if old_b is not None:
                         LOG.info("Removing binding to net-id = %s for %s"
-                          % (old_b, str(p)))
+                                 % (old_b, str(p)))
                         self.port_unbound(p, True)
                         if p.vif_id in all_bindings:
                             all_bindings[p.vif_id].op_status = OP_STATUS_DOWN
@@ -205,7 +203,7 @@ class OVSQuantumAgent(object):
             old_local_bindings = new_local_bindings
             try:
                 db.commit()
-            except Exception as e:
+            except Exception, e:
                 LOG.info("Unable to commit to database! Exception: %s" % e)
                 db.rollback()
                 old_local_bindings = {}
@@ -477,9 +475,9 @@ class OVSQuantumTunnelAgent(object):
                         lsw_id = lsw_id_bindings[new_net_uuid]
                         self.port_bound(p, new_net_uuid, lsw_id)
                         all_bindings[p.vif_id].op_status = OP_STATUS_UP
-                        LOG.info("Port " + str(p) + " on net-id = "
-                                 + new_net_uuid + " bound to " +
-                                 str(self.local_vlan_map[new_net_uuid]))
+                        LOG.info("Port %s on net-id = %s bound to %s " % (
+                                 str(p), new_net_uuid,
+                                 str(self.local_vlan_map[new_net_uuid])))
 
                 for vif_id in disappeared_vif_ports_ids:
                     LOG.info("Port Disappeared: " + vif_id)
@@ -508,7 +506,8 @@ def main():
     usagestr = "%prog [OPTIONS] <config file>"
     parser = OptionParser(usage=usagestr)
     parser.add_option("-v", "--verbose", dest="verbose",
-      action="store_true", default=False, help="turn on verbose logging")
+                      action="store_true", default=False,
+                      help="turn on verbose logging")
 
     options, args = parser.parse_args()
 

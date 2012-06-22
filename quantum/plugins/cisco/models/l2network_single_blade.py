@@ -19,14 +19,11 @@
 from copy import deepcopy
 import inspect
 import logging
-import platform
 
-from quantum.common import exceptions as exc
 from quantum.openstack.common import importutils
+from quantum.plugins.cisco.common import cisco_constants as const
 from quantum.plugins.cisco.l2network_model_base import L2NetworkModelBase
 from quantum.plugins.cisco import l2network_plugin_configuration as conf
-from quantum.plugins.cisco.common import cisco_constants as const
-from quantum.plugins.cisco.common import cisco_exceptions as cexc
 
 
 LOG = logging.getLogger(__name__)
@@ -92,8 +89,8 @@ class L2NetworkSingleBlade(L2NetworkModelBase):
         if args and isinstance(args[-1], dict):
             kwargs.update(args.pop())
 
-        return getattr(self._plugins[plugin_key], function_name)(*args,
-                                                                 **kwargs)
+        return getattr(self._plugins[plugin_key],
+                       function_name)(*args, **kwargs)
 
     def get_all_networks(self, args):
         """Not implemented for this model"""

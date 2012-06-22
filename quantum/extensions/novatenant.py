@@ -20,8 +20,8 @@ from webob import exc
 
 from quantum.api import api_common as common
 from quantum.common import exceptions as qexception
-from quantum.extensions import extensions
 from quantum.extensions import _novatenant_view as novatenant_view
+from quantum.extensions import extensions
 from quantum.manager import QuantumManager
 from quantum.plugins.cisco.common import cisco_faults as faults
 from quantum import wsgi
@@ -77,12 +77,12 @@ class NovatenantsController(common.QuantumController, wsgi.Controller):
 
     _Novatenant_ops_param_list = [
         {'param-name': 'novatenant_name', 'required': True},
-        ]
+    ]
 
     _schedule_host_ops_param_list = [
         {'param-name': 'instance_id', 'required': True},
         {'param-name': 'instance_desc', 'required': True},
-        ]
+    ]
 
     _serialization_metadata = {
         "application/xml": {

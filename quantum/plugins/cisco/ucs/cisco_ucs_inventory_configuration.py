@@ -17,13 +17,11 @@
 # @author: Sumit Naiksatam, Cisco Systems, Inc.
 #
 
-import os
-
-from quantum.common.config import find_config_file
+from quantum.common.utils import find_config_file
 from quantum.plugins.cisco.common import cisco_configparser as confp
 
 
-CONF_FILE = find_config_file({'plugin': 'cisco'}, None, "ucs_inventory.ini")
+CONF_FILE = find_config_file({'plugin': 'cisco'}, "ucs_inventory.ini")
 CP = confp.CiscoConfigParser(CONF_FILE)
 
 INVENTORY = CP.walk(CP.dummy)
