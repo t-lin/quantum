@@ -61,6 +61,7 @@ class QuantumDbPluginV2TestCase(unittest.TestCase):
         config.parse(args=args)
         # Update the plugin
         cfg.CONF.set_override('core_plugin', plugin)
+        cfg.CONF.set_override('base_mac', "12:34:56:78:90:ab")
         self.api = APIRouter()
 
     def tearDown(self):
@@ -253,15 +254,22 @@ class TestPortsV2(QuantumDbPluginV2TestCase):
             self.assertEqual(res['port']['admin_state_up'],
                              data['port']['admin_state_up'])
 
+    def test_delete_network_if_port_exists(self):
+        fmt = 'json'
+        with self.port() as port:
+            net_id = port['port']['network_id']
+            req = self.new_delete_request('networks',
+                                          port['port']['network_id'])
+            res = req.get_response(self.api)
+            self.assertEquals(res.status_int, 409)
+
     def test_requested_duplicate_mac(self):
         fmt = 'json'
         with self.port() as port:
             mac = port['port']['mac_address']
             # check that MAC address matches base MAC
-            # TODO(garyk) read base mac from configuration file (CONF)
-            base_mac = [0xfa, 0x16, 0x3e]
-            base_mac_address = ':'.join(map(lambda x: "%02x" % x, base_mac))
-            self.assertTrue(mac.startswith(base_mac_address))
+            base_mac = cfg.CONF.base_mac[0:2]
+            self.assertTrue(mac.startswith(base_mac))
             kwargs = {"mac_address": mac}
             net_id = port['port']['network_id']
             res = self._create_port(fmt, net_id=net_id, **kwargs)
