@@ -84,6 +84,11 @@ class NetworkInUse(InUse):
                 "There is one or more attachments plugged into its ports.")
 
 
+class SubnetInUse(InUse):
+    message = _("Unable to complete operation on subnet %(subnet_id)s. "
+                "There is used by one or more ports.")
+
+
 class PortInUse(InUse):
     message = _("Unable to complete operation on port %(port_id)s "
                 "for network %(net_id)s. The attachment '%(att_id)s"
@@ -93,6 +98,11 @@ class PortInUse(InUse):
 class MacAddressInUse(InUse):
     message = _("Unable to complete operation for network %(net_id)s. "
                 "The mac address %(mac)s is in use.")
+
+
+class IpAddressInUse(InUse):
+    message = _("Unable to complete operation for network %(net_id)s. "
+                "The IP address %(ip_address)s is in use.")
 
 
 class AlreadyAttached(QuantumException):
@@ -109,8 +119,26 @@ class Invalid(Error):
     pass
 
 
+class InvalidInput(QuantumException):
+    message = _("Invalid input for operation: %(error_message)s.")
+
+
 class InvalidContentType(Invalid):
     message = _("Invalid content type %(content_type)s.")
+
+
+class InvalidAllocationPool(QuantumException):
+    message = _("The allocation pool %(pool)s is not valid.")
+
+
+class OverlappingAllocationPools(QuantumException):
+    message = _("Found overlapping allocation pools:"
+                "%(pool_1)s %(pool_2)s for subnet %(subnet_cidr)s.")
+
+
+class OutOfBoundsAllocationPool(QuantumException):
+    message = _("The allocation pool %(pool)s spans "
+                "beyond the subnet cidr %(subnet_cidr)s.")
 
 
 class NotImplementedError(Error):
@@ -124,3 +152,7 @@ class FixedIPNotAvailable(QuantumException):
 
 class MacAddressGenerationFailure(QuantumException):
     message = _("Unable to generate unique mac on network %(net_id)s.")
+
+
+class IpAddressGenerationFailure(QuantumException):
+    message = _("No more IP addresses available on network %(net_id)s.")

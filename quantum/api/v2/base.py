@@ -30,7 +30,12 @@ FAULT_MAP = {exceptions.NotFound: webob.exc.HTTPNotFound,
              exceptions.InUse: webob.exc.HTTPConflict,
              exceptions.MacAddressGenerationFailure:
              webob.exc.HTTPServiceUnavailable,
-             exceptions.StateInvalid: webob.exc.HTTPBadRequest}
+             exceptions.StateInvalid: webob.exc.HTTPBadRequest,
+             exceptions.InvalidInput: webob.exc.HTTPBadRequest,
+             exceptions.OverlappingAllocationPools: webob.exc.HTTPConflict,
+             exceptions.OutOfBoundsAllocationPool: webob.exc.HTTPBadRequest,
+             exceptions.InvalidAllocationPool: webob.exc.HTTPBadRequest,
+             }
 
 
 def fields(request):
