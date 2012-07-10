@@ -75,7 +75,7 @@ class OVSBridge:
         self.datapath_id = dp_id
 
     def run_vsctl(self, args):
-        full_args = ["ovs-vsctl", "--timeout=2"] + args
+        full_args = ["ovs-vsctl", "--timeout=10"] + args
         return utils.execute(full_args, root_helper=self.root_helper)
 
     def set_controller(self, target):
