@@ -88,5 +88,4 @@ class LibvirtOpenVswitchOFPRyuDriver(libvirt_vif.LibvirtOpenVswitchDriver):
             res = e.args[0]
             if res.status != httplib.NOT_FOUND:
                 raise
-        super(LibvirtOpenVswitchOFPRyuDriver, self).unplug(instance, network,
-                                                           mapping)
+        super(LibvirtOpenVswitchOFPRyuDriver, self).unplug(instance, vif)
