@@ -76,7 +76,8 @@ class OVSBridge:
 
     def run_vsctl(self, args):
         full_args = ["ovs-vsctl", "--timeout=10"] + args
-        return utils.execute(full_args, root_helper=self.root_helper)
+        return utils.execute(full_args, root_helper=self.root_helper,
+                                     process_input=None, addl_env=None, check_exit_code=False)
 
     def set_controller(self, target):
         methods = ("ssl", "tcp", "unix", "pssl", "ptcp", "punix")
