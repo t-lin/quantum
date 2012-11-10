@@ -162,12 +162,14 @@ class L3NATAgent(object):
             ip_wrapper.netns.execute(['sysctl', '-w', 'net.ipv4.ip_forward=1'])
 
     def client_create(self):
+        LOG.debug(_('auth region is %s' % self.conf.auth_region))
         self.qclient = client.Client(
             username=self.conf.admin_user,
             password=self.conf.admin_password,
             tenant_name=self.conf.admin_tenant_name,
             auth_url=self.conf.auth_url,
             auth_strategy=self.conf.auth_strategy,
+            auth_region=self.conf.auth_region,
             region_name=self.conf.auth_region
         )
         LOG.debug(_("Client session established!"))
