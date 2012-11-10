@@ -117,13 +117,15 @@ class L3NATAgent(object):
 
         self.polling_interval = conf.polling_interval
 
+        LOG.debug(_('auth region is %s' % self.conf.auth_region))
         self.qclient = client.Client(
             username=self.conf.admin_user,
             password=self.conf.admin_password,
             tenant_name=self.conf.admin_tenant_name,
             auth_url=self.conf.auth_url,
             auth_strategy=self.conf.auth_strategy,
-            auth_region=self.conf.auth_region
+            auth_region=self.conf.auth_region,
+            region_name=self.conf.auth_region
         )
 
         if self.conf.use_namespaces:
