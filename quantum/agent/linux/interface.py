@@ -88,7 +88,7 @@ class LinuxInterfaceDriver(object):
 
     @abc.abstractmethod
     def plug(self, network_id, port_id, device_name, mac_address,
-             bridge=None, namespace=None, prefix=None):
+             bridge=None, namespace=None, prefix=None, internal_cidr=None):
         """Plug in the interface."""
 
     @abc.abstractmethod
@@ -98,7 +98,7 @@ class LinuxInterfaceDriver(object):
 
 class NullDriver(LinuxInterfaceDriver):
     def plug(self, network_id, port_id, device_name, mac_address,
-             bridge=None, namespace=None, prefix=None):
+             bridge=None, namespace=None, prefix=None, internal_cidr=None):
         pass
 
     def unplug(self, device_name, bridge=None, namespace=None, prefix=None):
@@ -123,7 +123,7 @@ class OVSInterfaceDriver(LinuxInterfaceDriver):
         utils.execute(cmd, self.conf.root_helper)
 
     def plug(self, network_id, port_id, device_name, mac_address,
-             bridge=None, namespace=None, prefix=None):
+             bridge=None, namespace=None, prefix=None, internal_cidr=None):
         """Plug in the interface."""
         if not bridge:
             bridge = self.conf.ovs_integration_bridge
@@ -163,7 +163,7 @@ class BridgeInterfaceDriver(LinuxInterfaceDriver):
     DEV_NAME_PREFIX = 'ns-'
 
     def plug(self, network_id, port_id, device_name, mac_address,
-             bridge=None, namespace=None, prefix=None):
+             bridge=None, namespace=None, prefix=None, internal_cidr=None):
         """Plugin the interface."""
         if not ip_lib.device_exists(device_name,
                                     self.conf.root_helper,
@@ -210,7 +210,7 @@ class RyuInterfaceDriver(OVSInterfaceDriver):
         self.ryu_client = OFPClient(self.conf.ryu_api_host)
 
     def plug(self, network_id, port_id, device_name, mac_address,
-             bridge=None, namespace=None, prefix=None):
+             bridge=None, namespace=None, prefix=None, internal_cidr=None):
         """Plug in the interface."""
         super(RyuInterfaceDriver, self).plug(network_id, port_id, device_name,
                                              mac_address, bridge=bridge,
@@ -224,6 +224,10 @@ class RyuInterfaceDriver(OVSInterfaceDriver):
         datapath_id = ovs_br.get_datapath_id()
         port_no = ovs_br.get_port_ofport(device_name)
         self.ryu_client.create_port(network_id, datapath_id, port_no)
+        self.ryu_client.add_mac(network_id, mac_address)
+        if internal_cidr is not None:
+           ip = internal_cidr.split("/")[0]
+           self.ryu_client.ip_mac_mapping(network_id, datapath_id, mac_address, ip, port_no)
 
 
 class OVSVethInterfaceDriver(OVSInterfaceDriver):

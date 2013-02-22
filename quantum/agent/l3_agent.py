@@ -452,7 +452,7 @@ class L3NATAgent(object):
                                     namespace=ri.ns_name()):
             self.driver.plug(network_id, port_id, interface_name, mac_address,
                              namespace=ri.ns_name(),
-                             prefix=INTERNAL_DEV_PREFIX)
+                             prefix=INTERNAL_DEV_PREFIX, internal_cidr=internal_cidr)
 
         self.driver.init_l3(interface_name, [internal_cidr],
                             namespace=ri.ns_name())

@@ -50,7 +50,7 @@ class LinuxOVSRyuInterfaceDriver(linux_net.LinuxOVSInterfaceDriver):
     def __init__(self):
         super(LinuxOVSRyuInterfaceDriver, self).__init__()
 
-        LOG.debug('ryu rest host %s', FLAGS.linuxnet_ovs_ryu_api_host)
+        LOG.info('ryu rest host %s', FLAGS.linuxnet_ovs_ryu_api_host)
         self.ryu_client = OFPClient(FLAGS.linuxnet_ovs_ryu_api_host)
         self.datapath_id = _get_datapath_id(
             FLAGS.linuxnet_ovs_integration_bridge)
@@ -64,7 +64,7 @@ class LinuxOVSRyuInterfaceDriver(linux_net.LinuxOVSInterfaceDriver):
             linux_net.iptables_manager.apply()
 
     def plug(self, network, mac_address, gateway=True):
-        LOG.debug("network %s mac_adress %s gateway %s",
+        LOG.info("network %s mac_adress %s gateway %s",
                   network, mac_address, gateway)
         ret = super(LinuxOVSRyuInterfaceDriver, self).plug(
             network, mac_address, gateway)
