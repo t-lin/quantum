@@ -420,6 +420,13 @@ class DeviceManager(object):
         else:
             namespace = None
 
+        ip_cidrs = []
+        for fixed_ip in port.fixed_ips:
+            subnet = fixed_ip.subnet
+            net = netaddr.IPNetwork(subnet.cidr)
+            ip_cidr = '%s/%s' % (fixed_ip.ip_address, net.prefixlen)
+            ip_cidrs.append(ip_cidr)
+
         if ip_lib.device_exists(interface_name,
                                 self.conf.root_helper,
                                 namespace):
@@ -433,13 +440,8 @@ class DeviceManager(object):
                              port.id,
                              interface_name,
                              port.mac_address,
-                             namespace=namespace)
-        ip_cidrs = []
-        for fixed_ip in port.fixed_ips:
-            subnet = fixed_ip.subnet
-            net = netaddr.IPNetwork(subnet.cidr)
-            ip_cidr = '%s/%s' % (fixed_ip.ip_address, net.prefixlen)
-            ip_cidrs.append(ip_cidr)
+                             namespace=namespace,
+                             internal_cidr=ip_cidrs[0])
 
         self.driver.init_l3(interface_name, ip_cidrs,
                             namespace=namespace)

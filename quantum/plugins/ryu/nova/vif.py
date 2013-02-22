@@ -51,7 +51,7 @@ def _get_port_no(dev):
 class LibvirtOpenVswitchOFPRyuDriver(libvirt_vif.LibvirtHybridOVSBridgeDriver):
     def __init__(self, **kwargs):
         super(LibvirtOpenVswitchOFPRyuDriver, self).__init__()
-        LOG.debug('ryu rest host %s', FLAGS.libvirt_ovs_bridge)
+        LOG.info('ryu rest host %s', FLAGS.libvirt_ovs_bridge)
         self.ryu_client = OFPClient(FLAGS.libvirt_ovs_ryu_api_host)
         self.datapath_id = _get_datapath_id(FLAGS.libvirt_ovs_bridge)
 
@@ -68,6 +68,12 @@ class LibvirtOpenVswitchOFPRyuDriver(libvirt_vif.LibvirtHybridOVSBridgeDriver):
         try:
             self.ryu_client.create_port(network['id'], self.datapath_id,
                                         port_no)
+            self.ryu_client.add_mac(network['id'], 
+                                        mapping['mac'])
+            for ip in mapping['ips']:
+                self.ryu_client.ip_mac_mapping(network['id'], self.datapath_id, 
+                                           mapping['mac'], ip['ip'],
+                                           port_no)
         except httplib.HTTPException as e:
             res = e.args[0]
             if res.status != httplib.CONFLICT:
