@@ -44,6 +44,7 @@ OPTS = [
                default='openstacklocal',
                help='Domain to use for building the hostnames'),
     cfg.StrOpt('dnsmasq_config_file',
+               default='',
                help='Override the default dnsmasq settings with this file'),
     cfg.StrOpt('dnsmasq_dns_server',
                help='Use another DNS server before any in /etc/resolv.conf.'),
@@ -167,6 +168,9 @@ class DhcpLocalProcess(DhcpBase):
     @property
     def active(self):
         pid = self.pid
+        if pid is None:
+            return False
+
         cmd = ['cat', '/proc/%s/cmdline' % pid]
         try:
             return self.network.id in utils.execute(cmd, self.root_helper)
@@ -217,9 +221,8 @@ class Dnsmasq(DhcpLocalProcess):
             '--bind-interfaces',
             '--interface=%s' % self.interface_name,
             '--except-interface=lo',
-            '--domain=%s' % self.conf.dhcp_domain,
-            '--pid-file=%s' % self.get_conf_file_name('pid',
-                                                      ensure_conf_dir=True),
+            '--pid-file=%s' % self.get_conf_file_name(
+                'pid', ensure_conf_dir=True),
             #TODO (mark): calculate value from cidr (defaults to 150)
             #'--dhcp-lease-max=%s' % ?,
             '--dhcp-hostsfile=%s' % self._output_hosts_file(),
@@ -244,10 +247,12 @@ class Dnsmasq(DhcpLocalProcess):
                         mode,
                         self.conf.dhcp_lease_time))
 
-        if self.conf.dnsmasq_config_file:
-            cmd.append('--conf-file=%s' % self.conf.dnsmasq_config_file)
+        cmd.append('--conf-file=%s' % self.conf.dnsmasq_config_file)
         if self.conf.dnsmasq_dns_server:
             cmd.append('--server=%s' % self.conf.dnsmasq_dns_server)
+
+        if self.conf.dhcp_domain:
+            cmd.append('--domain=%s' % self.conf.dhcp_domain)
 
         if self.namespace:
             ip_wrapper = ip_lib.IPWrapper(self.root_helper, self.namespace)
