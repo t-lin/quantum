@@ -46,7 +46,7 @@ NS_PREFIX = 'qdhcp-'
 class DhcpAgent(object):
     OPTS = [
         cfg.StrOpt('root_helper', default='sudo'),
-        cfg.IntOpt('resync_interval', default=30),
+        cfg.IntOpt('resync_interval', default=5),
         cfg.StrOpt('dhcp_driver',
                    default='quantum.agent.linux.dhcp.Dnsmasq',
                    help="The driver used to manage the DHCP server."),
@@ -445,6 +445,11 @@ class DeviceManager(object):
 
         self.driver.init_l3(interface_name, ip_cidrs,
                             namespace=namespace)
+
+        # ensure that the dhcp interface is first in the list
+        if namespace is None:
+            device = ip_lib.IPDevice(interface_name, self.conf.root_helper)
+            device.route.pullup_route(interface_name)
 
         return interface_name
 
