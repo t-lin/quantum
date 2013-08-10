@@ -74,6 +74,8 @@ class JanusInterfaceDriver(OVSInterfaceDriver):
         self.check_bridge_exists(bridge)
         ovs_br = ovs_lib.OVSBridge(bridge, self.conf.root_helper)
         datapath_id = ovs_br.get_datapath_id()
+
+        device_name = self._get_tap_name(device_name, prefix)
         port_no = ovs_br.get_port_ofport(device_name)
         self.client.addMAC(network_id, mac_address)
         self.client.createPort(network_id, datapath_id, port_no)
